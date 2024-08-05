@@ -14,11 +14,16 @@ import AdvancedInternetInteraction from '../components/AdvancedInternetInteracti
 import CodeExecution from '../components/CodeExecution';
 
 const fetchOllamaModels = async () => {
-  const response = await fetch('http://localhost:11434/api/tags');
-  if (!response.ok) {
-    throw new Error('Failed to fetch Ollama models');
+  try {
+    const response = await fetch('http://localhost:11434/api/tags');
+    if (!response.ok) {
+      throw new Error('Failed to fetch Ollama models');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching Ollama models:', error);
+    throw error;
   }
-  return response.json();
 };
 
 const Index = () => {
@@ -36,10 +41,15 @@ const Index = () => {
   const [isUpsonicTigerVisible, setIsUpsonicTigerVisible] = useState(false);
   const [isAdvancedInternetInteractionVisible, setIsAdvancedInternetInteractionVisible] = useState(false);
   const [isCodeExecutionVisible, setIsCodeExecutionVisible] = useState(false);
+  const [ollamaStatus, setOllamaStatus] = useState('Checking...');
 
   const { data: ollamaModels, isLoading, error } = useQuery({
     queryKey: ['ollamaModels'],
     queryFn: fetchOllamaModels,
+    retry: 3,
+    retryDelay: 1000,
+    onSuccess: () => setOllamaStatus('Connected'),
+    onError: () => setOllamaStatus('Not connected'),
   });
 
   useEffect(() => {
@@ -362,6 +372,17 @@ const Index = () => {
         {isCodeExecutionVisible && (
           <CodeExecution onClose={() => setIsCodeExecutionVisible(false)} />
         )}
+
+        <Card className="bg-gray-800 border-cyan-500">
+          <CardHeader>
+            <CardTitle>Ollama Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-lg ${ollamaStatus === 'Connected' ? 'text-green-500' : 'text-red-500'}`}>
+              {ollamaStatus}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
