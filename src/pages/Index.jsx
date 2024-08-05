@@ -1,20 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from '@tanstack/react-query';
+
+const fetchOllamaModels = async () => {
+  const response = await fetch('http://localhost:11434/api/tags');
+  if (!response.ok) {
+    throw new Error('Failed to fetch Ollama models');
+  }
+  return response.json();
+};
 
 const Index = () => {
   const [objectives, setObjectives] = useState('');
   const [numAgents, setNumAgents] = useState(1);
-  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedTextModel, setSelectedTextModel] = useState('');
+  const [selectedVisionModel, setSelectedVisionModel] = useState('');
   const [continuousMode, setContinuousMode] = useState(false);
+
+  const { data: ollamaModels, isLoading, error } = useQuery({
+    queryKey: ['ollamaModels'],
+    queryFn: fetchOllamaModels,
+  });
 
   const handleStartExecution = () => {
     // TODO: Implement crew execution logic
     console.log('Starting crew execution...');
+    console.log('Selected Text Model:', selectedTextModel);
+    console.log('Selected Vision Model:', selectedVisionModel);
   };
+
+  if (isLoading) return <div>Loading models...</div>;
+  if (error) return <div>Error loading models: {error.message}</div>;
+
+  const textModels = ollamaModels?.models.filter(model => !model.includes('vision')) || [];
+  const visionModels = ollamaModels?.models.filter(model => model.includes('vision')) || [];
 
   return (
     <div className="min-h-screen bg-black text-cyan-300 p-8">
@@ -33,15 +56,29 @@ const Index = () => {
         </div>
 
         <div>
-          <label htmlFor="llm-select" className="block mb-2">Choose LLM for Agents</label>
-          <Select onValueChange={setSelectedModel}>
-            <SelectTrigger id="llm-select" className="w-full bg-gray-800 text-cyan-300 border-cyan-500">
-              <SelectValue placeholder="Select Ollama model" />
+          <label htmlFor="text-model-select" className="block mb-2">Choose Text LLM for Agents</label>
+          <Select onValueChange={setSelectedTextModel} value={selectedTextModel}>
+            <SelectTrigger id="text-model-select" className="w-full bg-gray-800 text-cyan-300 border-cyan-500">
+              <SelectValue placeholder="Select Ollama text model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="model1">Model 1</SelectItem>
-              <SelectItem value="model2">Model 2</SelectItem>
-              <SelectItem value="model3">Model 3</SelectItem>
+              {textModels.map((model) => (
+                <SelectItem key={model} value={model}>{model}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="vision-model-select" className="block mb-2">Choose Vision LLM for Agents</label>
+          <Select onValueChange={setSelectedVisionModel} value={selectedVisionModel}>
+            <SelectTrigger id="vision-model-select" className="w-full bg-gray-800 text-cyan-300 border-cyan-500">
+              <SelectValue placeholder="Select Ollama vision model" />
+            </SelectTrigger>
+            <SelectContent>
+              {visionModels.map((model) => (
+                <SelectItem key={model} value={model}>{model}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
