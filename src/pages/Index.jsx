@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from '@tanstack/react-query';
+import { motion } from "framer-motion";
 
 const fetchOllamaModels = async () => {
   const response = await fetch('http://localhost:11434/api/tags');
@@ -33,29 +34,36 @@ const Index = () => {
     console.log('Selected Vision Model:', selectedVisionModel);
   };
 
-  if (isLoading) return <div>Loading models...</div>;
-  if (error) return <div>Error loading models: {error.message}</div>;
+  if (isLoading) return <div className="loading">Loading models...</div>;
+  if (error) return <div className="error">Error loading models: {error.message}</div>;
 
   const textModels = ollamaModels?.models.filter(model => !model.includes('vision')) || [];
   const visionModels = ollamaModels?.models.filter(model => model.includes('vision')) || [];
 
   return (
-    <div className="min-h-screen bg-black text-cyan-300 p-8">
-      <h1 className="text-4xl font-bold mb-8">AutoCrew</h1>
+    <div className="min-h-screen bg-black text-cyan-300 p-8 retro-futuristic">
+      <motion.h1 
+        className="text-4xl font-bold mb-8 glow-text"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        AutoCrew
+      </motion.h1>
       
       <div className="space-y-6">
-        <div>
+        <div className="terminal-window">
           <label htmlFor="objectives" className="block mb-2">Objectives</label>
           <Input
             id="objectives"
             value={objectives}
             onChange={(e) => setObjectives(e.target.value)}
-            className="w-full bg-gray-800 text-cyan-300 border-cyan-500"
+            className="w-full bg-gray-800 text-cyan-300 border-cyan-500 terminal-input"
             placeholder="Enter main objectives for AI agents"
           />
         </div>
 
-        <div>
+        <div className="hologram-select">
           <label htmlFor="text-model-select" className="block mb-2">Choose Text LLM for Agents</label>
           <Select onValueChange={setSelectedTextModel} value={selectedTextModel}>
             <SelectTrigger id="text-model-select" className="w-full bg-gray-800 text-cyan-300 border-cyan-500">
@@ -69,7 +77,7 @@ const Index = () => {
           </Select>
         </div>
 
-        <div>
+        <div className="hologram-select">
           <label htmlFor="vision-model-select" className="block mb-2">Choose Vision LLM for Agents</label>
           <Select onValueChange={setSelectedVisionModel} value={selectedVisionModel}>
             <SelectTrigger id="vision-model-select" className="w-full bg-gray-800 text-cyan-300 border-cyan-500">
@@ -83,7 +91,7 @@ const Index = () => {
           </Select>
         </div>
 
-        <div>
+        <div className="slider-container">
           <label htmlFor="num-agents" className="block mb-2">Number of Agents: {numAgents}</label>
           <Slider
             id="num-agents"
@@ -96,11 +104,12 @@ const Index = () => {
           />
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 switch-container">
           <Checkbox
             id="continuous-mode"
             checked={continuousMode}
             onCheckedChange={setContinuousMode}
+            className="neon-checkbox"
           />
           <label
             htmlFor="continuous-mode"
@@ -112,7 +121,7 @@ const Index = () => {
 
         <Button
           onClick={handleStartExecution}
-          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white illuminated-button"
         >
           Start Crew Execution
         </Button>
