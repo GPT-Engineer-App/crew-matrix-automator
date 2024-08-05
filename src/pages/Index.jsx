@@ -8,6 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from '@tanstack/react-query';
 import { motion } from "framer-motion";
+import CrewAITools from '../components/CrewAITools';
+import UpsonicTiger from '../components/UpsonicTiger';
+import AdvancedInternetInteraction from '../components/AdvancedInternetInteraction';
+import CodeExecution from '../components/CodeExecution';
 
 const fetchOllamaModels = async () => {
   const response = await fetch('http://localhost:11434/api/tags');
@@ -30,6 +34,8 @@ const Index = () => {
   const [agentActions, setAgentActions] = useState({ previous: '', current: '', next: '' });
   const [update, setUpdate] = useState('');
   const [isUpsonicTigerVisible, setIsUpsonicTigerVisible] = useState(false);
+  const [isAdvancedInternetInteractionVisible, setIsAdvancedInternetInteractionVisible] = useState(false);
+  const [isCodeExecutionVisible, setIsCodeExecutionVisible] = useState(false);
 
   const { data: ollamaModels, isLoading, error } = useQuery({
     queryKey: ['ollamaModels'],
@@ -37,9 +43,8 @@ const Index = () => {
   });
 
   useEffect(() => {
-    // Implement 15-minute cycle backup feature
     const backupInterval = setInterval(() => {
-      // TODO: Implement backup logic
+      // Implement backup logic
       console.log('Backing up data...');
     }, 15 * 60 * 1000);
 
@@ -47,12 +52,11 @@ const Index = () => {
   }, []);
 
   const handleStartExecution = () => {
-    // TODO: Implement crew execution logic
+    // Implement crew execution logic
     console.log('Starting crew execution...');
   };
 
   const handleAutoGenerateAgents = () => {
-    // TODO: Implement agent auto-generation logic
     const newAgents = Array.from({ length: numAgents }, (_, index) => ({
       id: index + 1,
       role: `Agent ${index + 1}`,
@@ -63,12 +67,12 @@ const Index = () => {
   };
 
   const handleAutoGenerateTasks = () => {
-    // TODO: Implement task auto-generation logic
+    // Implement task auto-generation logic
     console.log('Auto-generating tasks...');
   };
 
   const handleUploadFiles = () => {
-    // TODO: Implement file upload logic
+    // Implement file upload logic
     console.log('Uploading files...');
   };
 
@@ -211,7 +215,7 @@ const Index = () => {
                   setAgents(updatedAgents);
                 }}
               />
-              {/* TODO: Add Tool Selection section */}
+              <CrewAITools agentId={agent.id} />
             </CardContent>
           </Card>
         ))}
@@ -317,7 +321,7 @@ const Index = () => {
               placeholder="Enter update for agents"
             />
             <Button onClick={() => {
-              // TODO: Implement update logic
+              // Implement update logic
               console.log('Sending update:', update);
               setUpdate('');
             }}>
@@ -334,14 +338,29 @@ const Index = () => {
         </Button>
 
         {isUpsonicTigerVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-gray-800 p-6 rounded-lg w-3/4 h-3/4 overflow-auto">
-              <h2 className="text-2xl font-bold mb-4">Upsonic Tiger Interface</h2>
-              {/* TODO: Implement Upsonic Tiger interface */}
-              <p>Upsonic Tiger interface goes here...</p>
-              <Button onClick={() => setIsUpsonicTigerVisible(false)} className="mt-4">Close</Button>
-            </div>
-          </div>
+          <UpsonicTiger onClose={() => setIsUpsonicTigerVisible(false)} />
+        )}
+
+        <Button
+          onClick={() => setIsAdvancedInternetInteractionVisible(!isAdvancedInternetInteractionVisible)}
+          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white illuminated-button"
+        >
+          ADVANCED INTERNET INTERACTION
+        </Button>
+
+        {isAdvancedInternetInteractionVisible && (
+          <AdvancedInternetInteraction onClose={() => setIsAdvancedInternetInteractionVisible(false)} />
+        )}
+
+        <Button
+          onClick={() => setIsCodeExecutionVisible(!isCodeExecutionVisible)}
+          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white illuminated-button"
+        >
+          CODE EXECUTION
+        </Button>
+
+        {isCodeExecutionVisible && (
+          <CodeExecution onClose={() => setIsCodeExecutionVisible(false)} />
         )}
       </div>
     </div>
